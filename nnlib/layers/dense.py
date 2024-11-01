@@ -5,7 +5,7 @@ nnfs.init()
 
 
 # Dense layer
-class Layer_Dense:
+class Dense_Layer:
 
     # Layer initialization
     def __init__(self, n_inputs, n_neurons):
