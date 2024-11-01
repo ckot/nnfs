@@ -12,17 +12,6 @@ class Adagrad(Optimizer):
             decay=decay,
             epsilon=epsilon
         )
-        # self.learning_rate = learning_rate
-        # self.current_learning_rate = learning_rate
-        # self.decay = decay
-        # self.iterations = 0
-        # self.epsilon = epsilon
-
-    # # Call once before any parameter updates
-    # def pre_update_params(self):
-    #     if self.decay:
-    #         self.current_learning_rate = self.learning_rate * \
-    #             (1. / (1. + self.decay * self.iterations))
 
     # Update parameters
     def update_params(self, layer):
@@ -45,7 +34,3 @@ class Adagrad(Optimizer):
         layer.biases += -self.current_learning_rate * \
                         layer.dbiases / \
                         (np.sqrt(layer.bias_cache) + self.epsilon)
-
-    # # Call once after any parameter updates
-    # def post_update_params(self):
-    #     self.iterations += 1

@@ -13,17 +13,6 @@ class SGD(Optimizer):
             decay=decay,
             momentum=momentum
         )
-        # self.learning_rate = learning_rate
-        # self.current_learning_rate = learning_rate
-        # self.decay = decay
-        # self.iterations = 0
-        # self.momentum = momentum
-
-    # # Call once before any parameter updates
-    # def pre_update_params(self):
-    #     if self.decay:
-    #         self.current_learning_rate = self.learning_rate * \
-    #             (1. / (1. + self.decay * self.iterations))
 
     # Update parameters
     def update_params(self, layer):
@@ -64,8 +53,3 @@ class SGD(Optimizer):
         # vanilla or momentum updates
         layer.weights += weight_updates
         layer.biases += bias_updates
-
-
-    # # Call once after any parameter updates
-    # def post_update_params(self):
-    #     self.iterations += 1
