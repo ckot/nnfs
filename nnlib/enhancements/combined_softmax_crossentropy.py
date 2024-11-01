@@ -1,6 +1,6 @@
 import numpy as np
 import nnfs
-from nnlib.activation.softmax import Activation_Softmax
+from nnlib.activation.softmax import Softmax
 from nnlib.loss.loss import Loss_CategoricalCrossentropy
 
 nnfs.init()
@@ -11,7 +11,7 @@ class Activation_Softmax_Loss_CategoricalCrossentropy():
 
     # Creates activation and loss function objects
     def __init__(self):
-        self.activation = Activation_Softmax()
+        self.activation = Softmax()
         self.loss = Loss_CategoricalCrossentropy()
 
     # Forward pass
