@@ -1,0 +1,4 @@
+# these versions work with python==3.9.20
+matplotlib==3.3.4
+nnfs==0.5.1
+numpy==1.19.5
