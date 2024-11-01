@@ -2,10 +2,10 @@ import numpy as np
 import nnfs
 from nnfs.datasets import spiral_data
 
-from nnlib.layers.dense import Layer_Dense
-from nnlib.activation.relu import ReLU
+from nnlib.layers import Dense_Layer
+from nnlib.activation import ReLU
 from nnlib.enhancements.combined_softmax_crossentropy import Activation_Softmax_Loss_CategoricalCrossentropy
-from nnlib.optimizers.adam import Adam
+from nnlib.optimizers import Adam
 
 nnfs.init()
 
@@ -13,14 +13,14 @@ nnfs.init()
 X, y = spiral_data(samples=100, classes=3)
 
 # Create Dense layer with 2 input features and 64 output values
-dense1 = Layer_Dense(2, 64)
+dense1 = Dense_Layer(2, 64)
 
 # Create ReLU activation (to be used with Dense layer):
 activation1 = ReLU()
 
 # Create second Dense layer with 64 input features (as we take output
 # of previous layer here) and 3 output values (output values)
-dense2 = Layer_Dense(64, 3)
+dense2 = Dense_Layer(64, 3)
 # Create Softmax classifier's combined loss and activation
 loss_activation = Activation_Softmax_Loss_CategoricalCrossentropy()
 
