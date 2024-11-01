@@ -5,7 +5,7 @@ nnfs.init()
 
 
 # Softmax activation
-class Activation_Softmax:
+class Softmax:
 
     # Forward pass
     def forward(self, inputs):

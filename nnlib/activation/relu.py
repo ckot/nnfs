@@ -5,7 +5,7 @@ nnfs.init()
 
 
 # ReLU activation
-class Activation_ReLU:
+class ReLU:
 
     # Forward pass
     def forward(self, inputs):
