@@ -2,6 +2,8 @@ class Optimizer:
 
     def __init__(self, learning_rate=None, decay=0, **kwargs):
         # all subclasses have learning rate and decay
+        if learning_rate is None:
+            raise Exception("you must pass, at minimum a value for learning_rate to super().__init__()")
         self.learning_rate = learning_rate
         self.current_learning_rate = learning_rate
         self.decay = decay
