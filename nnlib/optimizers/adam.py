@@ -1,24 +1,18 @@
 import numpy as np
 
+from .base import Optimizer
+
 # Adam optimizer
-class Optimizer_Adam:
+class Adam(Optimizer):
 
     # Initialize optimizer - set settings
     def __init__(self, learning_rate=0.001, decay=0., epsilon=1e-7,
                  beta_1=0.9, beta_2=0.999):
-        self.learning_rate = learning_rate
-        self.current_learning_rate = learning_rate
-        self.decay = decay
-        self.iterations = 0
-        self.epsilon = epsilon
-        self.beta_1 = beta_1
-        self.beta_2 = beta_2
-
-    # Call once before any parameter updates
-    def pre_update_params(self):
-        if self.decay:
-            self.current_learning_rate = self.learning_rate * \
-                (1. / (1. + self.decay * self.iterations))
+        super().__init__(learning_rate=learning_rate,
+                         decay=decay,
+                         epsilon=epsilon,
+                         beta_1=beta_1,
+                         beta_2=beta_2)
 
     # Update parameters
     def update_params(self, layer):
@@ -69,6 +63,3 @@ class Optimizer_Adam:
                         (np.sqrt(bias_cache_corrected) +
                          self.epsilon)
 
-    # Call once after any parameter updates
-    def post_update_params(self):
-        self.iterations += 1
