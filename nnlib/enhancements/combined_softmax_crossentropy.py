@@ -1,7 +1,8 @@
 import numpy as np
 import nnfs
-from nnlib.activation.softmax import Softmax
-from nnlib.loss.loss import Loss_CategoricalCrossentropy
+
+from nnlib.activation import Softmax
+from nnlib.loss import Loss_CategoricalCrossentropy
 
 nnfs.init()
 
