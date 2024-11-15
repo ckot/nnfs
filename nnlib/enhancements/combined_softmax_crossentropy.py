@@ -1,28 +1,8 @@
 import numpy as np
-import nnfs
-
-from nnlib.activation import Softmax
-from nnlib.loss import Loss_CategoricalCrossentropy
-
-nnfs.init()
 
 # Softmax classifier - combined Softmax activation
 # and cross-entropy loss for faster backward step
 class Activation_Softmax_Loss_CategoricalCrossentropy():
-
-    # Creates activation and loss function objects
-    def __init__(self):
-        self.activation = Softmax()
-        self.loss = Loss_CategoricalCrossentropy()
-
-    # Forward pass
-    def forward(self, inputs, y_true):
-        # Output layer's activation function
-        self.activation.forward(inputs)
-        # Set the output
-        self.output = self.activation.output
-        # Calculate and return loss value
-        return self.loss.calculate(self.output, y_true)
 
     # Backward pass
     def backward(self, dvalues, y_true):

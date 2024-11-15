@@ -1,14 +1,11 @@
 import numpy as np
-import nnfs
-
-nnfs.init()
 
 
 # Softmax activation
-class Softmax:
+class Activation_Softmax:
 
     # Forward pass
-    def forward(self, inputs):
+    def forward(self, inputs, training):
         # Remember input values
         self.inputs = inputs
 
@@ -32,12 +29,15 @@ class Softmax:
                 enumerate(zip(self.output, dvalues)):
             # Flatten output array
             single_output = single_output.reshape(-1, 1)
+
             # Calculate Jacobian matrix of the output
             jacobian_matrix = np.diagflat(single_output) - \
                               np.dot(single_output, single_output.T)
-
             # Calculate sample-wise gradient
             # and add it to the array of sample gradients
             self.dinputs[index] = np.dot(jacobian_matrix,
                                          single_dvalues)
 
+    # Calculate predictions for outputs
+    def predictions(self, outputs):
+        return np.argmax(outputs, axis=1)

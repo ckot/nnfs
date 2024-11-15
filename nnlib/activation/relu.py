@@ -1,14 +1,11 @@
 import numpy as np
-import nnfs
-
-nnfs.init()
 
 
 # ReLU activation
-class ReLU:
+class Activation_ReLU:
 
     # Forward pass
-    def forward(self, inputs):
+    def forward(self, inputs, training):
         # Remember input values
         self.inputs = inputs
         # Calculate output values from inputs
@@ -22,3 +19,7 @@ class ReLU:
 
         # Zero gradient where input values were negative
         self.dinputs[self.inputs <= 0] = 0
+
+    # Calculate predictions for outputs
+    def predictions(self, outputs):
+        return outputs

@@ -1,9 +1,7 @@
 import numpy as np
-import nnfs
 
 from .base import Loss
 
-nnfs.init()
 
 
 # Cross-entropy loss
@@ -14,6 +12,7 @@ class Loss_CategoricalCrossentropy(Loss):
 
         # Number of samples in a batch
         samples = len(y_pred)
+
         # Clip data to prevent division by 0
         # Clip both sides to not drag mean towards any value
         y_pred_clipped = np.clip(y_pred, 1e-7, 1 - 1e-7)
@@ -32,7 +31,6 @@ class Loss_CategoricalCrossentropy(Loss):
                 y_pred_clipped * y_true,
                 axis=1
             )
-
         # Losses
         negative_log_likelihoods = -np.log(correct_confidences)
         return negative_log_likelihoods
