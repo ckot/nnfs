@@ -1,5 +1,10 @@
 matplotlib
 nnfs
-numpy
-# opencv-python
+# pytorch doesn't like numpy2. latest bugfix for numpy1
+numpy==1.26.4
+opencv-python
+pandas
 pillow
+torch
+torchvision
+tqdm
