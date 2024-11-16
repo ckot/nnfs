@@ -171,3 +171,9 @@ cython_debug/
 data
 fashion_mnist_images
 fashion_mnist
+
+# models and weights
+*.model
+*.pkl
+*.pth
+
