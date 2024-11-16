@@ -49,8 +49,8 @@ def copy_files(orig_data_path, new_data_path, new_labels_file):
             for filename in tqdm(sorted(os.listdir(orig_data_path / Path(label_num)))):
                 new_filename = transform_filename(label_num, filename)
                 # print(f"cp {orig_data_path}/{label_num}/{filename} {new_data_path}/{new_filename}")
-                # shutil.copyfile(orig_data_path / Path(label_num) / Path(filename),
-                #                 new_data_path / Path(new_filename))
+                shutil.copyfile(orig_data_path / Path(label_num) / Path(filename),
+                                new_data_path / Path(new_filename))
                 # print(f"append to {new_labels_file}: {new_filename}, {label_num}")
                 csv.write(f'"{new_filename}", {label_num}\n')
                 # break
