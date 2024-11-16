@@ -1,6 +1,7 @@
+import functools
 import os
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Tuple
 
 import pandas as pd
 import numpy as np
@@ -42,20 +43,22 @@ def create_data_mnist(path):
 
 
 class FashionMNistDataset:
-    """
-    annotations_file: path to a csv file of filename(png image), class_num (label)
-
-    images_path: path to directory containing images
-
-    transform: an optional function to modify the image data
-
-    target_transform: an optional function to modify the labels
-    """
     def __init__(self,
                  annotations_file: Path | str,
                  images_path: Path | str,
                  transform: Callable[[np.array], np.array] | None = None,
                  target_transform: Callable[[np.array], np.array] | None = None):
+        """
+        annotations_file: path to a csv file of:
+            filename(png image), class_num (label)
+
+        images_path: path to directory containing images
+
+        transform: an optional function to modify the image data
+
+        target_transform: an optional function to modify the labels
+        """
+
         self.image_labels = pd.read_csv(annotations_file)
         self.images_dir = images_path
         self.transform = transform
@@ -64,7 +67,8 @@ class FashionMNistDataset:
     def __len__(self):
         return len(self.image_labels)
 
-    def __getitem__(self, index: int):
+    @functools.cache
+    def __getitem__(self, index: int) -> Tuple[np.array, np.int64] :
         """
         input: int index into image_labels
 
@@ -72,13 +76,16 @@ class FashionMNistDataset:
 
         the image data and label may be transformed if transform and/or
         target_transform functions are defined
+
+        results are cached, so first epoch will be slow, but others will
+        be much faster, however I'm unsure if functools.cache keeps everything
+        in memory or if the cache is backed by disk in some efficient manner
         """
         img_path = os.path.join(self.images_dir,
                                 self.image_labels.iloc[index, 0])
         image = Image.open(img_path)
         image = np.array(image)
         label = self.image_labels.iloc[index, 1]
-        #print(f"fetching index {index}: {img_path} label: {label} {type(label)} {label.dtype}")
 
         if self.transform:
             image = self.transform(image)
@@ -132,7 +139,8 @@ class DataLoader:
         # probably want to remove tqdm, using it currently to both
         # see what's going on, in particular whether drop_last works
         # as intended
-        for key in tqdm(keys):
+        # for key in tqdm(keys):
+        for key in keys:
             feats, label = self.dataset[key]
             X.append(feats)
             y.append(label)
