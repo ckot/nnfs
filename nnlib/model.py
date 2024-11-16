@@ -40,36 +40,31 @@ class Model:
 
         # Iterate the objects
         for i in range(layer_count):
-
-            # If it's the first layer
-            # the previous layer object is the input layer
             if i == 0:
+                # the first layer's previous layer object is the input layer
                 self.layers[i].prev = self.input_layer
                 self.layers[i].next = self.layers[i+1]
-
-            # All layers except for the first and the last
             elif i < layer_count - 1:
+                # All layers except for the first and the last
                 self.layers[i].prev = self.layers[i-1]
                 self.layers[i].next = self.layers[i+1]
-
-            # The last layer the next object is the loss
             else:
+                # The last layer the next object is the loss
                 self.layers[i].prev = self.layers[i-1]
                 self.layers[i].next = self.loss
                 self.output_layer_activation = self.layers[i]
 
             if hasattr(self.layers[i], 'weights'):
+                # trainable layers have a 'weights' attribute
                 self.trainable_layers.append(self.layers[i])
 
         # Update loss object with trainable layers
         if self.loss is not None:
             self.loss.remember_trainable_layers(self.trainable_layers)
 
-        # if output activation is Softmax and
-        # loss function is Categorical Cross-Entropy
-        # create an object of combined activation
-        # and loss function containing
-        # faster gradient calculation
+        # if output activation is Softmax and loss function is
+        # Categorical Cross-Entropy, create an object of combined activation
+        # and loss function for a substantial speedup in gradient calculation
         if isinstance(self.layers[-1], Activation_Softmax) and \
                 isinstance(self.loss, Loss_CategoricalCrossentropy):
            self.softmax_classifier_output = \
@@ -78,7 +73,7 @@ class Model:
     # Performs forward pass
     def forward(self, X, training):
 
-        # Call forward methond on the input layer
+        # Call forward method on the input layer
         # this will set the output property that
         # the first layer in "prev" object is expecting
         self.input_layer.forward(X, training)
@@ -88,8 +83,7 @@ class Model:
         for layer in self.layers:
             layer.forward(layer.prev.output, training)
 
-        # "layer" is not the last object from list
-        # return its output
+        # "layer" is now the last object from list, return its output
         return layer.output
 
     # Performs backward pass
@@ -105,80 +99,56 @@ class Model:
                 layer.backward(layer.next.dinputs)
 
             return
-        # First call backward method on the lost
-        # this will set dinputs property that the last
-        # layer will try to access shortly
+        # First call backward method on the losa
+        # this will set dinputs property that the last layer will access shortly
         self.loss.backward(output, y)
 
-        # Call bacward method going thorugh all the objects
+        # Call backward method going through all the objects
         # in reversed order passing dinputs as parameter
         for layer in reversed(self.layers):
             layer.backward(layer.next.dinputs)
 
     # Train the model
-    def train(self, X, y, *, epochs=1, batch_size=None,
-              print_every=1, validation_data=None):
-
-        # Initialize accuracy object
-        self.accuracy.init(y)
-
-        # Default value if batch size is not being set
-        train_steps = 1
-
-        # If there is validation data
-        # set default number of steps for validation as well
-        if validation_data is not None:
-            validation_steps = 1
-            # For better readability
-            X_val, y_val = validation_data
-
-        # Calculate the number of steps
-        if batch_size is not None:
-            train_steps = len(X) // batch_size
-            # integer division rounds down. If there are some samples remaining
-            # , but not a full batch, this won't include it
-            # add 1 to include this partial batch
-            if train_steps * batch_size < len(X):
-                train_steps += 1
+    def train(self, dataloader, *, epochs=1,
+              print_every=1, validation_dataloader=None):
 
         # Main training loop
         for epoch in range(1, epochs + 1):
-
-            print(f"epoch: {epoch}")
+            if epoch == 1:
+                print(f"epoch: 1 (slower than later epochs, as data is being loaded)")
+            else:
+                print(f"epoch: {epoch}")
 
             # reset accumulated values in loss and accuracy objects
             self.loss.new_pass()
             self.accuracy.new_pass()
 
             # Iterate over steps
-            for step in range(train_steps):
+            for step, (X, y) in enumerate(dataloader):
+                if step == 1:
+                    # Initialize accuracy object
 
-                # If batch size is not set -
-                # train using on step and full_dataset
-                if batch_size is None:
-                    batch_X = X
-                    batch_y = y
-
-                # Otherwise slice a batch
-                else:
-                    batch_X = X[step*batch_size:(step+1)*batch_size]
-                    batch_y = y[step*batch_size:(step+1)*batch_size]
+                    # NOTE: (shuffling is now REQUIRED)
+                    # now that we're using a dataloader, y isn't available
+                    # until we fetch a batch. This isn't as ideal as we only
+                    # get a peek at batchsize y values instead of entire y vals
+                    self.accuracy.init(y)
 
                 # Perform the forward pass
-                output = self.forward(batch_X, training=True)
+                output = self.forward(X, training=True)
 
                 data_loss, regularization_loss = \
-                    self.loss.calculate(output, batch_y,
+                    self.loss.calculate(output, y,
                                         include_regularization=True)
 
                 loss = data_loss + regularization_loss
 
                 # Get predictions and calculate an accuracy
                 predictions = self.output_layer_activation.predictions(output)
-                accuracy = self.accuracy.calculate(predictions, batch_y)
+                accuracy = self.accuracy.calculate(predictions, y)
 
                 # Perform  backward pass
-                self.backward(output, batch_y)
+                self.backward(output, y)
 
                 # Optimize (update parameters)
                 self.optimizer.pre_update_params()
@@ -187,7 +157,7 @@ class Model:
                 self.optimizer.post_update_params()
 
                 # Print a summary
-                if not step % print_every or step == train_steps - 1:
+                if not step % print_every or step == dataloader.num_batches - 1:
                     print(f'step: {step}, ' +
                           f'acc: {accuracy:.3f}, ' +
                           f'loss: {loss:.3f} (' +
@@ -201,57 +171,34 @@ class Model:
             epoch_loss = epoch_data_loss + epoch_regularization_loss
             epoch_accuracy = self.accuracy.calculate_accumulated()
 
-            print(f'training,' +
+            print(f'accumulated epoch values: ' +
                   f'acc: {epoch_accuracy:.3f}, ' +
                   f'loss: {epoch_loss:.3f} (' +
                   f'data_loss: {epoch_data_loss:.3f}, ' +
                   f'reg_loss: {epoch_regularization_loss:.3f}), ' +
-                  f'lr {self.optimizer.current_learning_rate}')
+                  f'lr: {self.optimizer.current_learning_rate}')
 
-            if validation_data is not None:
-                self.evaluate(*validation_data, batch_size=batch_size)
+            if validation_dataloader is not None:
+                self.evaluate(validation_dataloader)
 
     # Evaluates the model using passed-in dataset
-    def evaluate(self, X_val, y_val, *, batch_size=None):
-
-        # Default value if batch size is not being set
-        validation_steps = 1
-
-        # Calculate the number of steps
-        if batch_size is not None:
-            validation_steps = len(X_val) // batch_size
-            if validation_steps * batch_size < len(X_val):
-                validation_steps += 1
+    def evaluate(self, dataloader):
 
         # Reset accumulated values in loss and accuracy objects
         self.loss.new_pass()
         self.accuracy.new_pass()
 
         # Iterate over steps
-        for step in range(validation_steps):
-            # If batch size is not set -
-            # train using one step and full dataset
-            if batch_size is None:
-                batch_X = X_val
-                batch_y = y_val
-            # Otherwise slice a batch
-            else:
-                batch_X = X_val[
-                    step*batch_size:(step+1)*batch_size
-                ]
-                batch_y = y_val[
-                    step*batch_size:(step+1)*batch_size
-                ]
-
+        for X, y in dataloader:
             # Perform the forward pass
-            output = self.forward(batch_X, training=False)
+            output = self.forward(X, training=False)
 
             # Calculate the loss
-            self.loss.calculate(output, batch_y)
+            self.loss.calculate(output, y)
 
             # Get predictions and calculate an accuracy
             predictions = self.output_layer_activation.predictions(output)
-            self.accuracy.calculate(predictions, batch_y)
+            self.accuracy.calculate(predictions, y)
 
         # Get and print validation loss and accuracy
         validation_loss = self.loss.calculate_accumulated()
