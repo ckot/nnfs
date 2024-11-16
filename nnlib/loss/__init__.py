@@ -1,3 +1,4 @@
+from .base import Loss
 from .binary_crossentropy import Loss_BinaryCrossentropy
 from .categorical_crossentropy import Loss_CategoricalCrossentropy
 from .mean_absolute_error import Loss_MeanAbsoluteError
