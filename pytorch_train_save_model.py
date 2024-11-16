@@ -1,9 +1,10 @@
 import os
+from functools import cache
 from pathlib import Path
-import pandas as pd
 from typing import Callable
 import sys
 
+import pandas as pd
 import torch
 from torch import nn, Tensor
 from torch.utils.data import Dataset, DataLoader
@@ -26,6 +27,7 @@ class CustomFashionMNistDataset(Dataset):
     def __len__(self):
         return len(self.image_labels)
 
+    # @cache
     def __getitem__(self, index: int):
         # print index to verify shuffle is working
         # print(f"fetching index: {index} of {len(self) + 1}")
@@ -44,18 +46,17 @@ flatten = nn.Flatten()
 
 def transform_image_data(image: Tensor) -> Tensor:
     """
-    input: Tensor shape(batchsize, 1, 28, 28) dtype uint8 with values 0 -> 256
+    input: Tensor shape(batchsize, 1, 28, 28) dtype uint8 with values 0 -> 255
      - to -
     output: Tensor shape(batchsize, 768) dtype float32 with values -1 -> 1
     """
     # convert uint8 to float
     image.to(dtype=torch.float32)
     # normalize values of 0 to 256 => -1 to 1
-    image -= 127
-    # not sure why image /= 127 causes an error
-    image = image / 127
+    # image = (image - 127.5) / 127.5
+    image = image / 255
     # convert 28x28 matrix to len 768 vector
-    image = flatten(image)
+    # image = flatten(image)
     return image
 
 
@@ -95,31 +96,32 @@ class NeuralNetwork(nn.Module):
 
 
 
-#Download training data from open datasets.
-training_data = datasets.FashionMNIST(
-    root="data",
-    train=True,
-    download=True,
-    transform=ToTensor(),
-)
+# #Download training data from open datasets.
+# training_data = datasets.FashionMNIST(
+#     root="data",
+#     train=True,
+#     download=True,
+#     transform=ToTensor(),
+# )
 
-# Download test data from open datasets.
-test_data = datasets.FashionMNIST(
-    root="data",
-    train=False,
-    download=True,
-    transform=ToTensor(),
-)
+# # Download test data from open datasets.
+# test_data = datasets.FashionMNIST(
+#     root="data",
+#     train=False,
+#     download=True,
+#     transform=ToTensor(),
+# )
 
-# training_data = CustomFashionMNistDataset("fashion_mnist/train/labels.csv",
-#                                           "fashion_mnist/train/images",
-#                                           transform=transform_image_data,
-#                                           target_transform=None)
-#                                         #   target_transform=one_hot_encode)
-# test_data = CustomFashionMNistDataset("fashion_mnist/test/labels.csv",
-#                                       "fashion_mnist/test/images",
-#                                       transform=transform_image_data,
-#                                       target_transform=one_hot_encode)
+training_data = CustomFashionMNistDataset("fashion_mnist/train/labels.csv",
+                                          "fashion_mnist/train/images",
+                                          transform=transform_image_data,
+                                          target_transform=None)
+                                        #   target_transform=one_hot_encode)
+test_data = CustomFashionMNistDataset("fashion_mnist/test/labels.csv",
+                                      "fashion_mnist/test/images",
+                                      transform=transform_image_data,
+                                      target_transform=None)
+                                    #   target_transform=one_hot_encode)
 
 
 
@@ -146,6 +148,9 @@ def train(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
     model.train()
     for batch, (X, y) in enumerate(dataloader):
+        # print(X.shape, X.dtype, y.shape, y.dtype)
+        # print(X[0])
+        # sys.exit(0)
         X, y = X.to(device), y.to(device)
 
         # Compute prediction error
@@ -179,7 +184,7 @@ def test(dataloader, model, loss_fn):
         f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
 
 
-epochs = 5
+epochs = 10
 for t in range(epochs):
     print(f"Epoch {t+1}\n-------------------------------")
     train(train_dataloader, mdl, loss_fn, optimizer)
