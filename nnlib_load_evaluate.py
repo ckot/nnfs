@@ -14,6 +14,6 @@ test_dataset = FashionMNistDataset("fashion_mnist/test/labels.csv",
 test_dataloader = DataLoader(test_dataset)
 
 
-model.load_parameters("fashion_mnist_weights.pkl")
+model.load_parameters("nnlib_model_weights.pkl")
 
 model.evaluate(test_dataloader)

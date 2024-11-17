@@ -33,4 +33,4 @@ test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE,
 model.train(train_dataloader, validation_dataloader=test_dataloader,
             epochs=10, print_every=100)
 
-model.save_parameters("fashion_mnist_weights.pkl")
+model.save_parameters("nnlib_model_weights.pkl")
