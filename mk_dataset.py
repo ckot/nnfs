@@ -40,7 +40,7 @@ def transform_filename(label_num, orig_filename):
     new_file_name = prefix + "_" + orig_filename
     return new_file_name
 
-def copy_files(orig_data_path, new_data_path, new_labels_file):
+def move_files(orig_data_path, new_data_path, new_labels_file):
     print(f"copying files to {new_data_path}...")
     with open(new_labels_file, "w") as csv:
 
@@ -49,11 +49,11 @@ def copy_files(orig_data_path, new_data_path, new_labels_file):
             for filename in tqdm(sorted(os.listdir(orig_data_path / Path(label_num)))):
                 new_filename = transform_filename(label_num, filename)
                 # print(f"cp {orig_data_path}/{label_num}/{filename} {new_data_path}/{new_filename}")
-                shutil.copyfile(orig_data_path / Path(label_num) / Path(filename),
-                                new_data_path / Path(new_filename))
+                shutil.move(orig_data_path / Path(label_num) / Path(filename),
+                            new_data_path / Path(new_filename))
                 # print(f"append to {new_labels_file}: {new_filename}, {label_num}")
                 csv.write(f'"{new_filename}", {label_num}\n')
                 # break
 
-copy_files(ORIG_TRAIN_DATA, NEW_TRAIN_DATA_IMAGES, NEW_TRAIN_DATA_LABELS_FILE)
-copy_files(ORIG_TEST_DATA,  NEW_TEST_DATA_IMAGES,  NEW_TEST_DATA_LABELS_FILE)
+move_files(ORIG_TRAIN_DATA, NEW_TRAIN_DATA_IMAGES, NEW_TRAIN_DATA_LABELS_FILE)
+move_files(ORIG_TEST_DATA,  NEW_TEST_DATA_IMAGES,  NEW_TEST_DATA_LABELS_FILE)
