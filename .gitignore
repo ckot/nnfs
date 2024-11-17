@@ -168,7 +168,7 @@ cython_debug/
 *.code-workspace
 
 # datafiles
-data
+./data
 fashion_mnist_images
 fashion_mnist
 
