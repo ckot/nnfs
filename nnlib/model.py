@@ -115,9 +115,9 @@ class Model:
         # Main training loop
         for epoch in range(1, epochs + 1):
             if epoch == 1:
-                print(f"epoch: 1 (slower than later epochs, as data is being loaded)")
+                print(f"Epoch: 1 (slower than later epochs, as data is being loaded)")
             else:
-                print(f"epoch: {epoch}")
+                print(f"Epoch: {epoch}")
 
             # reset accumulated values in loss and accuracy objects
             self.loss.new_pass()
@@ -158,12 +158,12 @@ class Model:
 
                 # Print a summary
                 if not step % print_every or step == dataloader.num_batches - 1:
-                    print(f'step: {step}, ' +
+                    print(f'\tstep: {step:4n}, ' +
                           f'acc: {accuracy:.3f}, ' +
                           f'loss: {loss:.3f} (' +
                           f'data_loss: {data_loss:.3f}, ' +
                           f'reg_loss: {regularization_loss:.3f}), ' +
-                          f'lr: {self.optimizer.current_learning_rate}')
+                          f'lr: {self.optimizer.current_learning_rate:.6f}')
 
             # Get and print epoch loss and accuracy
             epoch_data_loss, epoch_regularization_loss = \
