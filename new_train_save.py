@@ -1,8 +1,10 @@
 import numpy as np
 import nnfs
 
+from nnlib.data import DataLoader
+
 from fashion_mnist_dataset import (
-    DataLoader, FashionMNistDataset, transform_image_data
+    FashionMNistDataset, transform_image_data
 )
 
 from fashion_mnist_model import fashion_mnist_model as model
